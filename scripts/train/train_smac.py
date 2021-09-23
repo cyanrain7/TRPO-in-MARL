@@ -73,29 +73,11 @@ def parse_args(args, parser):
 def main(args):
     parser = get_config()
     all_args = parse_args(args, parser)
-    
-    ##### just use for debug if you run bash please comment it
-    all_args.env_name="StarCraft2"
-    all_args.map_name="3m"
-    all_args.num_env_steps=1e7
-    all_args.ppo_epoch=10
-    all_args.episode_length=400
-    all_args.num_mini_batch=2
-    all_args.use_value_active_masks=False
-    all_args.use_eval=True
-    all_args.add_center_xy=True
-    all_args.use_state_agent=True
-    all_args.n_training_threads=4
-    all_args.n_rollout_threads=4
-    all_args.seed=50
-    all_args.experiment_name="test"
-    all_args.algorithm_name = "hatrpo"
-    # print("all config: ", all_args)
-    ##### just use for debug if you run bash please comment it
-
     all_args.use_recurrent_policy=False
     all_args.use_naive_recurrent_policy=False
     all_args.share_policy=False
+    print("all config: ", all_args)
+
     # cuda
     if all_args.cuda and torch.cuda.is_available():
         print("choose to use gpu...")
