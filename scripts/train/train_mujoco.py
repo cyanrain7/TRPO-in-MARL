@@ -86,10 +86,6 @@ def parse_args(args, parser):
 def main(args):
     parser = get_config()
     all_args = parse_args(args, parser)
-    
-    all_args.use_recurrent_policy=False
-    all_args.use_naive_recurrent_policy=False
-    all_args.share_policy=False
     print("all config: ", all_args)
 
     # cuda
