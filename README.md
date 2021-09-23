@@ -1,5 +1,5 @@
 # Trust Region Policy Optimisation in Multi-Agent Reinforcement Learning
-Described in the paper "[Trust Region Policy Optimisation in Multi-Agent Reinforcement Learning](http://arxiv.org/abs/)", this repository develop HeterogeneousAgent Trust Region Policy Optimisation (HATRPO) and Heterogeneous-Agent Proximal Policy Optimisation (HAPPO) algorithms and evaluate the proposed methods on SMAC and  Multi-agent MuJoCo tasks, aiming to establishing a new state of the art. 
+Described in the paper "[Trust Region Policy Optimisation in Multi-Agent Reinforcement Learning](http://arxiv.org/abs/)", this repository develop HeterogeneousAgent Trust Region Policy Optimisation (HATRPO) and Heterogeneous-Agent Proximal Policy Optimisation (HAPPO) algorithms and evaluate the proposed methods on SMAC and  Multi-agent MuJoCo tasks, establishing a new state of the art. 
 
 ## Installation
 ### Create environment
