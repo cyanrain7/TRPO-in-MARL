@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 import os
-sys.path.append("../../")
+sys.path.append("../")
 import socket
 import setproctitle
 import numpy as np
