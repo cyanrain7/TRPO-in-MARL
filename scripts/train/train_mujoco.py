@@ -1,12 +1,7 @@
 #!/usr/bin/env python
 import sys
 import os
-
-curPath = os.path.abspath(__file__)
-rootPath = '/'.join(curPath.split('/')[:-3])
-sys.path.append(os.path.split(rootPath)[0])
-
-
+sys.path.append("../../")
 import socket
 import setproctitle
 import numpy as np
