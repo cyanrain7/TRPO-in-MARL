@@ -199,7 +199,7 @@ class ACTLayer(nn.Module):
             action_mu = torch.cat(mu_collector,-1)
             action_std = torch.cat(std_collector,-1)
             all_probs = torch.cat(probs_collector,-1)
-            action_log_probs = torch.cat(action_log_probs, -1) # ! could be wrong
+            action_log_probs = torch.cat(action_log_probs, -1)
             dist_entropy = torch.tensor(dist_entropy).mean()
         
         else:
