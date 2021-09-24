@@ -123,8 +123,8 @@ class HATRPO():
             index += params_length
 
     def kl_approx(self, q, p):
-        r = p/q
-        kl = r - 1 - torch.log(p) + torch.log(q)
+        r = torch.exp(p - q)
+        kl = r - 1 - p + q
         return kl
 
     def kl_divergence(self, obs, rnn_states, action, masks, available_actions, active_masks, new_actor, old_actor):
