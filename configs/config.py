@@ -8,7 +8,7 @@ def get_config():
 
     Prepare parameters:
         --algorithm_name <algorithm_name>
-            specifiy the algorithm, including `["haappo", "hatrpo"]`
+            specifiy the algorithm, including `["happo", "hatrpo"]`
         --experiment_name <str>
             an identifier to distinguish different experiment.
         --seed <int>

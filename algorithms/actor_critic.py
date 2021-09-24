@@ -10,7 +10,7 @@ from utils.util import get_shape_from_obs_space
 
 class Actor(nn.Module):
     """
-    Actor network class for MAPPO. Outputs actions given observations.
+    Actor network class for HAPPO. Outputs actions given observations.
     :param args: (argparse.Namespace) arguments containing relevant model information.
     :param obs_space: (gym.Space) observation space.
     :param action_space: (gym.Space) action space.
@@ -117,8 +117,7 @@ class Actor(nn.Module):
 
 class Critic(nn.Module):
     """
-    Critic network class for MAPPO. Outputs value function predictions given centralized input (MAPPO) or
-                            local observations (IPPO).
+    Critic network class for HAPPO. Outputs value function predictions given centralized input (HAPPO) or local observations (IPPO).
     :param args: (argparse.Namespace) arguments containing relevant model information.
     :param cent_obs_space: (gym.Space) (centralized) observation space.
     :param device: (torch.device) specifies the device to run on (cpu/gpu).

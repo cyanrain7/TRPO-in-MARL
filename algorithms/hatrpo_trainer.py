@@ -10,7 +10,7 @@ class HATRPO():
     """
     Trainer class for MATRPO to update policies.
     :param args: (argparse.Namespace) arguments containing relevant model, policy, and env information.
-    :param policy: (R_MAPPO_Policy) policy to update.
+    :param policy: (HATRPO_Policy) policy to update.
     :param device: (torch.device) specifies the device to run on (cpu/gpu).
     """
     def __init__(self,

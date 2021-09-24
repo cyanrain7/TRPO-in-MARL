@@ -105,7 +105,6 @@ class SMACRunner(Runner):
 
     @torch.no_grad()
     def collect(self, step):
-        # have modified for sadppo
         value_collector=[]
         action_collector=[]
         action_log_prob_collector=[]

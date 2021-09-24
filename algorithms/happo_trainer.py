@@ -7,9 +7,9 @@ from algorithms.utils.util import check
 
 class HAPPO():
     """
-    Trainer class for MAPPO to update policies.
+    Trainer class for HAPPO to update policies.
     :param args: (argparse.Namespace) arguments containing relevant model, policy, and env information.
-    :param policy: (R_MAPPO_Policy) policy to update.
+    :param policy: (HAPPO_Policy) policy to update.
     :param device: (torch.device) specifies the device to run on (cpu/gpu).
     """
     def __init__(self,
