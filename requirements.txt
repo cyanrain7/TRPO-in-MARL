@@ -147,7 +147,6 @@ tornado
 tqdm==4.48.2
 typing-extensions==3.7.4.3
 urllib3==1.23
-wandb==0.10.5
 watchdog==0.10.3
 websocket-client==0.53.0
 Werkzeug==0.16.1
