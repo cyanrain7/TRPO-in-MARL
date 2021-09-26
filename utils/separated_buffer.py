@@ -10,7 +10,7 @@ def _cast(x):
     return x.transpose(1,0,2).reshape(-1, *x.shape[2:])
 
 class SeparatedReplayBuffer(object):
-    def __init__(self, args, obs_space, share_obs_space, act_space):
+    def __init__(self, args, obs_space, share_obs_space, act_space, n_agents=1, joint=False):
         self.episode_length = args.episode_length
         self.n_rollout_threads = args.n_rollout_threads
         self.rnn_hidden_size = args.hidden_size
@@ -22,8 +22,10 @@ class SeparatedReplayBuffer(object):
         self._use_valuenorm = args.use_valuenorm
         self._use_proper_time_limits = args.use_proper_time_limits
 
-
-
+        if joint:
+            self.n_agents = n_agents
+        else:
+            self.n_agents = 1
         obs_shape = get_shape_from_obs_space(obs_space)
         share_obs_shape = get_shape_from_obs_space(share_obs_space)
 
@@ -33,27 +35,27 @@ class SeparatedReplayBuffer(object):
         if type(share_obs_shape[-1]) == list:
             share_obs_shape = share_obs_shape[:1]
 
-        self.share_obs = np.zeros((self.episode_length + 1, self.n_rollout_threads, *share_obs_shape), dtype=np.float32)
-        self.obs = np.zeros((self.episode_length + 1, self.n_rollout_threads, *obs_shape), dtype=np.float32)
+        self.share_obs = np.zeros((self.episode_length + 1, self.n_rollout_threads*self.n_agents, *share_obs_shape), dtype=np.float32)
+        self.obs = np.zeros((self.episode_length + 1, self.n_rollout_threads*self.n_agents, *obs_shape), dtype=np.float32)
 
-        self.rnn_states = np.zeros((self.episode_length + 1, self.n_rollout_threads, self.recurrent_N, self.rnn_hidden_size), dtype=np.float32)
+        self.rnn_states = np.zeros((self.episode_length + 1, self.n_rollout_threads*self.n_agents, self.recurrent_N, self.rnn_hidden_size), dtype=np.float32)
         self.rnn_states_critic = np.zeros_like(self.rnn_states)
 
-        self.value_preds = np.zeros((self.episode_length + 1, self.n_rollout_threads, 1), dtype=np.float32)
-        self.returns = np.zeros((self.episode_length + 1, self.n_rollout_threads, 1), dtype=np.float32)
+        self.value_preds = np.zeros((self.episode_length + 1, self.n_rollout_threads*self.n_agents, 1), dtype=np.float32)
+        self.returns = np.zeros((self.episode_length + 1, self.n_rollout_threads*self.n_agents, 1), dtype=np.float32)
         
         if act_space.__class__.__name__ == 'Discrete':
-            self.available_actions = np.ones((self.episode_length + 1, self.n_rollout_threads, act_space.n), dtype=np.float32)
+            self.available_actions = np.ones((self.episode_length + 1, self.n_rollout_threads*self.n_agents, act_space.n), dtype=np.float32)
         else:
             self.available_actions = None
 
         act_shape = get_shape_from_act_space(act_space)
 
-        self.actions = np.zeros((self.episode_length, self.n_rollout_threads, act_shape), dtype=np.float32)
-        self.action_log_probs = np.zeros((self.episode_length, self.n_rollout_threads, act_shape), dtype=np.float32)
-        self.rewards = np.zeros((self.episode_length, self.n_rollout_threads, 1), dtype=np.float32)
+        self.actions = np.zeros((self.episode_length, self.n_rollout_threads*self.n_agents, act_shape), dtype=np.float32)
+        self.action_log_probs = np.zeros((self.episode_length, self.n_rollout_threads*self.n_agents, act_shape), dtype=np.float32)
+        self.rewards = np.zeros((self.episode_length, self.n_rollout_threads*self.n_agents, 1), dtype=np.float32)
         
-        self.masks = np.ones((self.episode_length + 1, self.n_rollout_threads, 1), dtype=np.float32)
+        self.masks = np.ones((self.episode_length + 1, self.n_rollout_threads*self.n_agents, 1), dtype=np.float32)
         self.bad_masks = np.ones_like(self.masks)
         self.active_masks = np.ones_like(self.masks)
 
