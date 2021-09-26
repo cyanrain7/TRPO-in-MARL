@@ -42,7 +42,6 @@ class HATRPO():
         self._use_popart = args.use_popart
         self._use_value_active_masks = args.use_value_active_masks
         self._use_policy_active_masks = args.use_policy_active_masks
-        self._use_joint = args.use_joint
         
         if self._use_popart:
             self.value_normalizer = PopArt(1, device=self.device)
@@ -179,7 +178,7 @@ class HATRPO():
         kl_hessian_p = self.flat_hessian(kl_hessian_p)
         return kl_hessian_p + 0.1 * p
 
-    def trpo_update(self, sample, shared_sample=None, update_actor=True):
+    def trpo_update(self, sample, update_actor=True):
         """
         Update actor and critic networks.
         :param sample: (Tuple) contains data batch with which to update networks.
@@ -196,22 +195,10 @@ class HATRPO():
         value_preds_batch, return_batch, masks_batch, active_masks_batch, old_action_log_probs_batch, \
         adv_targ, available_actions_batch, factor_batch = sample
 
-        if self._use_joint:
-            shared_share_obs_batch, shared_obs_batch, shared_rnn_states_batch, shared_rnn_states_critic_batch, shared_actions_batch, \
-            shared_value_preds_batch, shared_return_batch, shared_masks_batch, shared_active_masks_batch, shared_old_action_log_probs_batch, \
-            shared_adv_targ, shared_available_actions_batch = shared_sample
-
         old_action_log_probs_batch = check(old_action_log_probs_batch).to(**self.tpdv)
         adv_targ = check(adv_targ).to(**self.tpdv)
-
-        if self._use_joint:
-            shared_value_preds_batch = check(shared_value_preds_batch).to(**self.tpdv)
-            shared_return_batch = check(shared_return_batch).to(**self.tpdv)
-            shared_active_masks_batch = check(shared_active_masks_batch).to(**self.tpdv)
-        else:
-            value_preds_batch = check(value_preds_batch).to(**self.tpdv)
-            return_batch = check(return_batch).to(**self.tpdv)
-        
+        value_preds_batch = check(value_preds_batch).to(**self.tpdv)
+        return_batch = check(return_batch).to(**self.tpdv)
         active_masks_batch = check(active_masks_batch).to(**self.tpdv)
         factor_batch = check(factor_batch).to(**self.tpdv)
 
@@ -223,20 +210,9 @@ class HATRPO():
                                                                               masks_batch, 
                                                                               available_actions_batch,
                                                                               active_masks_batch)
-        if self._use_joint:
-            shared_values, _, _, _, _, _ = self.policy.evaluate_actions(shared_share_obs_batch,
-                                                                shared_obs_batch,
-                                                                shared_rnn_states_batch,
-                                                                shared_rnn_states_critic_batch,
-                                                                shared_actions_batch,
-                                                                shared_masks_batch,
-                                                                shared_available_actions_batch,
-                                                                shared_active_masks_batch)
+
         # critic update
-        if self._use_joint:
-            value_loss = self.cal_value_loss(shared_values, shared_value_preds_batch, shared_return_batch, shared_active_masks_batch)
-        else:
-            value_loss = self.cal_value_loss(values, value_preds_batch, return_batch, active_masks_batch)
+        value_loss = self.cal_value_loss(values, value_preds_batch, return_batch, active_masks_batch)
 
         self.policy.critic_optimizer.zero_grad()
 
@@ -342,7 +318,7 @@ class HATRPO():
 
         return value_loss, critic_grad_norm, kl, loss_improve, expected_improve, dist_entropy, ratio
 
-    def train(self, buffer, shared_buffer = None, update_actor=True):
+    def train(self, buffer, update_actor=True):
         """
         Perform a training update using minibatch GD.
         :param buffer: (SharedReplayBuffer) buffer containing training data.
@@ -352,26 +328,15 @@ class HATRPO():
         """
         if self._use_popart:
             advantages = buffer.returns[:-1] - self.value_normalizer.denormalize(buffer.value_preds[:-1])
-            if self._use_joint:
-                shared_advantages = shared_buffer.returns[:-1] - self.value_normalizer.denormalize(shared_buffer.value_preds[:-1])
         else:
             advantages = buffer.returns[:-1] - buffer.value_preds[:-1]
-            if self._use_joint:
-                shared_advantages = shared_buffer.returns[:-1] - shared_buffer.value_preds[:-1]
-
         advantages_copy = advantages.copy()
         advantages_copy[buffer.active_masks[:-1] == 0.0] = np.nan
         mean_advantages = np.nanmean(advantages_copy)
         std_advantages = np.nanstd(advantages_copy)
         advantages = (advantages - mean_advantages) / (std_advantages + 1e-5)
         
-        if self._use_joint:
-            shared_advantages_copy = shared_advantages.copy()
-            shared_advantages_copy[shared_buffer.active_masks[:-1] == 0.0] = np.nan
-            shared_mean_advantages = np.nanmean(shared_advantages_copy)
-            shared_std_advantages = np.nanstd(shared_advantages_copy)
-            shared_advantages = (shared_advantages - shared_mean_advantages) / (shared_std_advantages + 1e-5)
-        
+
         train_info = {}
 
         train_info['value_loss'] = 0
@@ -382,34 +347,26 @@ class HATRPO():
         train_info['critic_grad_norm'] = 0
         train_info['ratio'] = 0
 
+
         if self._use_recurrent_policy:
             data_generator = buffer.recurrent_generator(advantages, self.num_mini_batch, self.data_chunk_length)
         elif self._use_naive_recurrent:
             data_generator = buffer.naive_recurrent_generator(advantages, self.num_mini_batch)
         else:
             data_generator = buffer.feed_forward_generator(advantages, self.num_mini_batch)
-        if self._use_joint:
-            if self._use_recurrent_policy:
-                shared_data_generator = shared_buffer.recurrent_generator(shared_advantages, self.num_mini_batch, self.data_chunk_length)
-            elif self._use_naive_recurrent:
-                shared_data_generator = shared_buffer.naive_recurrent_generator(shared_advantages, self.num_mini_batch)
-            else:
-                shared_data_generator = shared_buffer.feed_forward_generator(shared_advantages, self.num_mini_batch)
-            for sample, shared_sample in zip(data_generator, shared_data_generator):
-                value_loss, critic_grad_norm, kl, loss_improve, expected_improve, dist_entropy, imp_weights  \
-                    = self.trpo_update(sample, shared_sample, update_actor)
-        else:
-            for sample in data_generator:
-                value_loss, critic_grad_norm, kl, loss_improve, expected_improve, dist_entropy, imp_weights \
-                    = self.trpo_update(sample, update_actor)
 
-        train_info['value_loss'] += value_loss.item()
-        train_info['kl'] += kl
-        train_info['loss_improve'] += loss_improve.item()
-        train_info['expected_improve'] += expected_improve
-        train_info['dist_entropy'] += dist_entropy.item()
-        train_info['critic_grad_norm'] += critic_grad_norm
-        train_info['ratio'] += imp_weights.mean()
+        for sample in data_generator:
+
+            value_loss, critic_grad_norm, kl, loss_improve, expected_improve, dist_entropy, imp_weights \
+                = self.trpo_update(sample, update_actor)
+
+            train_info['value_loss'] += value_loss.item()
+            train_info['kl'] += kl
+            train_info['loss_improve'] += loss_improve.item()
+            train_info['expected_improve'] += expected_improve
+            train_info['dist_entropy'] += dist_entropy.item()
+            train_info['critic_grad_norm'] += critic_grad_norm
+            train_info['ratio'] += imp_weights.mean()
 
         num_updates = self.num_mini_batch
 

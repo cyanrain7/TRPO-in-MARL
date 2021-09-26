@@ -38,8 +38,6 @@ def get_config():
     Replay Buffer parameters:
         --episode_length <int>
             the max length of episode in the buffer. 
-        --use_joint <bool>
-            Whether use joint buffer for critic training
     
     Network parameters:
         --share_policy
@@ -185,8 +183,6 @@ def get_config():
     # replay buffer parameters
     parser.add_argument("--episode_length", type=int,
                         default=200, help="Max length for any episode")
-    parser.add_argument("--use_joint", action='store_true',
-                        default=False, help='Whether use joint buffer for critic training')
 
     # network parameters
     parser.add_argument("--share_policy", action='store_false',

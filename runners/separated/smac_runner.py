@@ -102,10 +102,6 @@ class SMACRunner(Runner):
             self.buffer[agent_id].share_obs[0] = share_obs[:,agent_id].copy()
             self.buffer[agent_id].obs[0] = obs[:,agent_id].copy()
             self.buffer[agent_id].available_actions[0] = available_actions[:,agent_id].copy()
-            if self.use_joint:
-                self.shared_buffer[agent_id].share_obs[0] = share_obs.reshape(-1,*share_obs.shape[2:]).copy()
-                self.shared_buffer[agent_id].obs[0] = obs.reshape(-1, *obs.shape[2:]).copy()
-                self.shared_buffer[agent_id].available_actions[0] = available_actions.reshape(-1,*available_actions.shape[2:]).copy()
 
     @torch.no_grad()
     def collect(self, step):
@@ -162,16 +158,6 @@ class SMACRunner(Runner):
                     rnn_states_critic[:,agent_id],actions[:,agent_id], action_log_probs[:,agent_id],
                     values[:,agent_id], rewards[:,agent_id], masks[:,agent_id], bad_masks[:,agent_id], 
                     active_masks[:,agent_id], available_actions[:,agent_id])
-            if self.use_joint:
-                self.shared_buffer[agent_id].insert(share_obs.reshape(-1,*share_obs.shape[2:]),
-                                    obs.reshape(-1, *obs.shape[2:]),
-                                    rnn_states.reshape(-1, *rnn_states.shape[2:]),
-                                    rnn_states_critic.reshape(-1, *rnn_states_critic.shape[2:]),
-                                    actions.reshape(-1, *actions.shape[2:]),
-                                    action_log_probs.reshape(-1, *action_log_probs.shape[2:]),
-                                    values.reshape(-1, *values.shape[2:]),
-                                    rewards.reshape(-1, *rewards.shape[2:]),
-                                    masks.reshape(-1, *masks.shape[2:]))
 
     def log_train(self, train_infos, total_num_steps):
         for agent_id in range(self.num_agents):

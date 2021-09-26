@@ -35,7 +35,6 @@ class Runner(object):
         self.use_render = self.all_args.use_render
         self.recurrent_N = self.all_args.recurrent_N
         self.use_single_network = self.all_args.use_single_network
-        self.use_joint = self.all_args.use_joint
         # interval
         self.save_interval = self.all_args.save_interval
         self.use_eval = self.all_args.use_eval
@@ -91,8 +90,6 @@ class Runner(object):
 
         self.trainer = []
         self.buffer = []
-        if self.use_joint:
-            self.shared_buffer = []
         for agent_id in range(self.num_agents):
             # algorithm
             tr = TrainAlgo(self.all_args, self.policy[agent_id], device = self.device)
@@ -101,20 +98,9 @@ class Runner(object):
             bu = SeparatedReplayBuffer(self.all_args,
                                        self.envs.observation_space[agent_id],
                                        share_observation_space,
-                                       self.envs.action_space[agent_id],
-                                       n_agents = self.num_agents,
-                                       joint = False)
+                                       self.envs.action_space[agent_id])
             self.buffer.append(bu)
             self.trainer.append(tr)
-
-            if self.use_joint:
-                share_bu = SeparatedReplayBuffer(self.all_args,
-                                           self.envs.observation_space[agent_id],
-                                           share_observation_space,
-                                           self.envs.action_space[agent_id], 
-                                           n_agents = self.num_agents, 
-                                           joint = True)
-                self.shared_buffer.append(share_bu)
             
     def run(self):
         raise NotImplementedError
@@ -137,12 +123,6 @@ class Runner(object):
                                                                 self.buffer[agent_id].masks[-1])
             next_value = _t2n(next_value)
             self.buffer[agent_id].compute_returns(next_value, self.trainer[agent_id].value_normalizer)
-            if self.use_joint:
-                shared_next_value = self.trainer[agent_id].policy.get_values(self.shared_buffer[agent_id].share_obs[-1],
-                                                                    self.shared_buffer[agent_id].rnn_states_critic[-1],
-                                                                    self.shared_buffer[agent_id].masks[-1])
-                shared_next_value = _t2n(shared_next_value)
-                self.shared_buffer[agent_id].compute_returns(shared_next_value, self.trainer[agent_id].value_normalizer)
 
     def train(self):
         train_infos = []
@@ -171,10 +151,7 @@ class Runner(object):
                                                             self.buffer[agent_id].masks[:-1].reshape(-1, *self.buffer[agent_id].masks.shape[2:]),
                                                             available_actions,
                                                             self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
-            if self.use_joint:
-                train_info = self.trainer[agent_id].train(self.buffer[agent_id], shared_buffer=self.shared_buffer[agent_id])
-            else:
-                train_info = self.trainer[agent_id].train(self.buffer[agent_id], shared_buffer=None)
+            train_info = self.trainer[agent_id].train(self.buffer[agent_id])
 
             if self.all_args.algorithm_name == "hatrpo":
                 new_actions_logprob, _, _, _, _ =self.trainer[agent_id].policy.actor.evaluate_actions(self.buffer[agent_id].obs[:-1].reshape(-1, *self.buffer[agent_id].obs.shape[2:]),
