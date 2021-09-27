@@ -158,20 +158,24 @@ def get_config():
                         default="check", help="an identifier to distinguish different experiment.")
     parser.add_argument("--seed", type=int, 
                         default=1, help="Random seed for numpy/torch")
+    parser.add_argument("--seed_specify", action="store_false",
+                        default=True, help="Random or specify seed for numpy/torch")
+    parser.add_argument("--runing_id", type=int, 
+                        default=1, help="the runing index of experiment")
     parser.add_argument("--cuda", action='store_false', 
                         default=True, help="by default True, will use GPU to train; or else will use CPU;")
-    parser.add_argument("--cuda_deterministic",
-                        action='store_false', default=True, help="by default, make sure random seed effective. if set, bypass such function.")
+    parser.add_argument("--cuda_deterministic", action='store_false', 
+                        default=True, help="by default, make sure random seed effective. if set, bypass such function.")
     parser.add_argument("--n_training_threads", type=int,
                         default=1, help="Number of torch threads for training")
-    parser.add_argument("--n_rollout_threads", type=int, default=32,
-                        help="Number of parallel envs for training rollouts")
-    parser.add_argument("--n_eval_rollout_threads", type=int, default=1,
-                        help="Number of parallel envs for evaluating rollouts")
-    parser.add_argument("--n_render_rollout_threads", type=int, default=1,
-                        help="Number of parallel envs for rendering rollouts")
-    parser.add_argument("--num_env_steps", type=int, default=10e6,
-                        help='Number of environment steps to train (default: 10e6)')
+    parser.add_argument("--n_rollout_threads", type=int, 
+                        default=32, help="Number of parallel envs for training rollouts")
+    parser.add_argument("--n_eval_rollout_threads", type=int, 
+                        default=1, help="Number of parallel envs for evaluating rollouts")
+    parser.add_argument("--n_render_rollout_threads", type=int, 
+                        default=1, help="Number of parallel envs for rendering rollouts")
+    parser.add_argument("--num_env_steps", type=int, 
+                        default=10e6, help='Number of environment steps to train (default: 10e6)')
     parser.add_argument("--user_name", type=str, 
                         default='marl',help="[for wandb usage], to specify user's name for simply collecting training data.")
     # env parameters
@@ -189,14 +193,14 @@ def get_config():
                         default=True, help='Whether agent share the same policy')
     parser.add_argument("--use_centralized_V", action='store_false',
                         default=True, help="Whether to use centralized V function")
-    parser.add_argument("--stacked_frames", type=int, default=1,
-                        help="Dimension of hidden layers for actor/critic networks")
+    parser.add_argument("--stacked_frames", type=int, 
+                        default=1, help="Dimension of hidden layers for actor/critic networks")
     parser.add_argument("--use_stacked_frames", action='store_true',
                         default=False, help="Whether to use stacked_frames")
-    parser.add_argument("--hidden_size", type=int, default=64,
-                        help="Dimension of hidden layers for actor/critic networks") 
-    parser.add_argument("--layer_N", type=int, default=1,
-                        help="Number of layers for actor/critic networks")
+    parser.add_argument("--hidden_size", type=int, 
+                        default=64, help="Dimension of hidden layers for actor/critic networks") 
+    parser.add_argument("--layer_N", type=int, 
+                        default=1, help="Number of layers for actor/critic networks")
     parser.add_argument("--use_ReLU", action='store_false',
                         default=True, help="Whether to use ReLU")
     parser.add_argument("--use_popart", action='store_false', 
@@ -221,12 +225,12 @@ def get_config():
                         default=10, help="Time length of chunks used to train a recurrent_policy")
     
     # optimizer parameters
-    parser.add_argument("--lr", type=float, default=5e-4,
-                        help='learning rate (default: 5e-4)')
-    parser.add_argument("--critic_lr", type=float, default=5e-4,
-                        help='critic learning rate (default: 5e-4)')
-    parser.add_argument("--opti_eps", type=float, default=1e-5,
-                        help='RMSprop optimizer epsilon (default: 1e-5)')
+    parser.add_argument("--lr", type=float, 
+                        default=5e-4, help='learning rate (default: 5e-4)')
+    parser.add_argument("--critic_lr", type=float, 
+                        default=5e-4, help='critic learning rate (default: 5e-4)')
+    parser.add_argument("--opti_eps", type=float, 
+                        default=1e-5, help='RMSprop optimizer epsilon (default: 1e-5)')
     parser.add_argument("--weight_decay", type=float, default=0)
     parser.add_argument("--std_x_coef", type=float, default=1)
     parser.add_argument("--std_y_coef", type=float, default=0.5)

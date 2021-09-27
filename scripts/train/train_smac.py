@@ -74,7 +74,11 @@ def main(args):
     parser = get_config()
     all_args = parse_args(args, parser)
     print("all config: ", all_args)
-
+    if all_args.seed_specify:
+        all_args.seed=all_args.runing_id
+    else:
+        all_args.seed=np.random.randint(0,10000)
+    print("seed is :",all_args.seed)
     # cuda
     if all_args.cuda and torch.cuda.is_available():
         print("choose to use gpu...")
