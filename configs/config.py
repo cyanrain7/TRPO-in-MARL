@@ -162,8 +162,8 @@ def get_config():
                         default="check", help="an identifier to distinguish different experiment.")
     parser.add_argument("--seed", type=int, 
                         default=1, help="Random seed for numpy/torch")
-    parser.add_argument("--seed_specify", action="store_false",
-                        default=True, help="Random or specify seed for numpy/torch")
+    parser.add_argument("--seed_specify", action="store_true",
+                        default=False, help="Random or specify seed for numpy/torch")
     parser.add_argument("--runing_id", type=int, 
                         default=1, help="the runing index of experiment")
     parser.add_argument("--cuda", action='store_false', 
