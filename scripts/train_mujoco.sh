@@ -5,7 +5,7 @@ agent_conf="2x4"
 agent_obsk=2
 algo="happo"
 exp="mlp"
-seed_max=1
+seed_max=20
 kl_threshold=1e-4
 echo "env is ${env}, scenario is ${scenario}, algo is ${algo}, exp is ${exp}, max seed is ${seed_max}"
 for seed in `seq ${seed_max}`;
