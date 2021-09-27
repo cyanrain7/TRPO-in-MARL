@@ -13,6 +13,10 @@ def get_config():
             an identifier to distinguish different experiment.
         --seed <int>
             set seed for numpy and torch 
+        --seed_specify
+            by default True Random or specify seed for numpy/torch
+        --runing_id <int>
+            the runing index of experiment (default=1)
         --cuda
             by default True, will use GPU to train; or else will use CPU; 
         --cuda_deterministic
