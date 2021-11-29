@@ -27,6 +27,12 @@ class HAPPO_Policy:
         self.act_space = act_space
 
         self.actor = Actor(args, self.obs_space, self.act_space, self.device)
+
+        ######################################Please Note#########################################
+        #####   We create one critic for each agent, but they are trained with same data     #####
+        #####   and using same update setting. Therefore they have the same parameter,       #####
+        #####   you can regard them as the same critic.                                      #####
+        ##########################################################################################
         self.critic = Critic(args, self.share_obs_space, self.device)
 
         self.actor_optimizer = torch.optim.Adam(self.actor.parameters(),
