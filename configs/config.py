@@ -15,8 +15,8 @@ def get_config():
             set seed for numpy and torch 
         --seed_specify
             by default True Random or specify seed for numpy/torch
-        --runing_id <int>
-            the runing index of experiment (default=1)
+        --running_id <int>
+            the running index of experiment (default=1)
         --cuda
             by default True, will use GPU to train; or else will use CPU; 
         --cuda_deterministic
@@ -164,8 +164,8 @@ def get_config():
                         default=1, help="Random seed for numpy/torch")
     parser.add_argument("--seed_specify", action="store_true",
                         default=False, help="Random or specify seed for numpy/torch")
-    parser.add_argument("--runing_id", type=int, 
-                        default=1, help="the runing index of experiment")
+    parser.add_argument("--running_id", type=int, 
+                        default=1, help="the running index of experiment")
     parser.add_argument("--cuda", action='store_false', 
                         default=True, help="by default True, will use GPU to train; or else will use CPU;")
     parser.add_argument("--cuda_deterministic", action='store_false', 
