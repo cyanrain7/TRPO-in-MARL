@@ -129,7 +129,7 @@ class Runner(object):
         # random update order
 
         action_dim=self.buffer[0].actions.shape[-1]
-        factor = np.ones((self.episode_length, self.n_rollout_threads, action_dim), dtype=np.float32)
+        factor = np.ones((self.episode_length, self.n_rollout_threads, 1), dtype=np.float32)
 
         for agent_id in torch.randperm(self.num_agents):
             self.trainer[agent_id].prep_training()
@@ -168,7 +168,7 @@ class Runner(object):
                                                             available_actions,
                                                             self.buffer[agent_id].active_masks[:-1].reshape(-1, *self.buffer[agent_id].active_masks.shape[2:]))
 
-            factor = factor*_t2n(torch.exp(new_actions_logprob-old_actions_logprob).reshape(self.episode_length,self.n_rollout_threads,action_dim))
+            factor = factor*_t2n(torch.prod(torch.exp(new_actions_logprob-old_actions_logprob),dim=-1).reshape(self.episode_length,self.n_rollout_threads,1))
             train_infos.append(train_info)      
             self.buffer[agent_id].after_update()
 
