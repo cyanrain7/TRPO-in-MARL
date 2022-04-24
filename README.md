@@ -49,3 +49,8 @@ If you would like to change the configs of experiments, you could modify sh file
 ### 
 <img src="plots/ma-mujoco_2.png" width="500" >
 
+## Additional Experiment Setting
+### For SMAC
+#### 2022/4/24 update important ERROR for SMAC
+##### Fix the parameter of **gamma** from 0.99 to 0.95
+
