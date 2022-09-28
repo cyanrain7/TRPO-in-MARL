@@ -8,6 +8,10 @@ from tensorboardX import SummaryWriter
 from utils.separated_buffer import SeparatedReplayBuffer
 from utils.util import update_linear_schedule
 
+# zjk add
+import logging
+import os
+
 def _t2n(x):
     return x.detach().cpu().numpy()
 
@@ -102,6 +106,10 @@ class Runner(object):
             self.buffer.append(bu)
             self.trainer.append(tr)
             
+            # add
+            self.zjk_log_init()
+    
+    
     def run(self):
         raise NotImplementedError
 
@@ -206,3 +214,30 @@ class Runner(object):
         for k, v in env_infos.items():
             if len(v) > 0:
                 self.writter.add_scalars(k, {k: np.mean(v)}, total_num_steps)
+    
+    #zjk add
+    def zjk_log_init(self):
+        # 1. 创建logger对象
+        self.logger = logging.getLogger()
+
+        # 2. 设置日志信息过滤级别
+        self.logger.setLevel(logging.WARNING)
+
+        # 3. 创建formatter和sHandler对象，并用formatter修饰sHandler
+        formatter = logging.Formatter(fmt="[ %(asctime)s ] %(message)s",datefmt="%a %b %d %H:%M:%S %Y")
+        sHandler = logging.StreamHandler()
+        sHandler.setFormatter(formatter)
+        if self.all_args.env_name == "StarCraft2":
+            log_file_name = self.all_args.env_name + '_' + self.all_args.map_name + '_' + self.all_args.algorithm_name + '_' + self.all_args.experiment_name + '_' + str(self.all_args.seed)
+        else:
+            log_file_name = self.all_args.env_name + '_' + self.all_args.scenario + '_' + self.all_args.algorithm_name + '_' + self.all_args.experiment_name + '_' + str(self.all_args.seed)
+        
+        # if self.all_args.delta_actions_probs_order:
+        #     log_file_name += "_order"
+        
+        fHandler = logging.FileHandler(os.path.split(os.path.split(os.path.split(os.path.realpath(__file__))[0])[0])[0]+'/logs/{}.log'.format(log_file_name), mode='w')
+        fHandler.setFormatter(formatter)
+
+        # 4. logger添加handler
+        self.logger.addHandler(sHandler)
+        self.logger.addHandler(fHandler)    

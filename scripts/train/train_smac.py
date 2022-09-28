@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import os
+sys.path.append(os.getcwd())
 sys.path.append("../")
 import socket
 import setproctitle
@@ -92,8 +93,14 @@ def main(args):
         device = torch.device("cpu")
         torch.set_num_threads(all_args.n_training_threads)
 
-    run_dir = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
-                       0] + "/results") / all_args.env_name / all_args.map_name / all_args.algorithm_name / all_args.experiment_name / str(all_args.seed)
+    
+    # zjk modify
+    run_dir = Path(os.path.split(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])[0]) /"results"/ \
+                        "master" / all_args.env_name / all_args.map_name / all_args.algorithm_name / all_args.experiment_name / str(all_args.seed)
+
+    # run_dir = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
+    #                    0] + "/results") / all_args.env_name / all_args.map_name / all_args.algorithm_name / all_args.experiment_name / str(all_args.seed)
+    
     if not run_dir.exists():
         os.makedirs(str(run_dir))
 

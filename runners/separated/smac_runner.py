@@ -90,6 +90,7 @@ class SMACRunner(Runner):
 
             # eval
             if episode % self.eval_interval == 0 and self.use_eval:
+                self.logger.warning("Episode:{:>5}/{:>5}".format(episode,episodes))
                 self.eval(total_num_steps)
 
     def warmup(self):
@@ -226,4 +227,8 @@ class SMACRunner(Runner):
                 eval_win_rate = eval_battles_won/eval_episode
                 print("eval win rate is {}.".format(eval_win_rate))
                 self.writter.add_scalars("eval_win_rate", {"eval_win_rate": eval_win_rate}, total_num_steps)
+                
+                # zjk add
+                self.logger.warning("\tEval_win_tate:{}".format(eval_win_rate))
+                self.logger.warning("\tEval_episode_rewards:{}".format(eval_episode_rewards.mean()))
                 break
