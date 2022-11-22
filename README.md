@@ -54,5 +54,5 @@ If you would like to change the configs of experiments, you could modify sh file
 #### 2022/4/24 update important ERROR for SMAC
 ##### Fix the parameter of **gamma** from 0.99 to 0.95
 ##### gamma for **3s5z** and **2c_vs_64zg**  is 0.95
-##### gamma for **corridor** is is 0.99
+##### gamma for **corridor** is 0.99
 
